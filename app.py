@@ -753,10 +753,32 @@ async def stream(sid: str, ws: WebSocket):
     async def producer():
         try:
             while True:
+                # Send test.jpg three times
                 if os.path.isfile(test_img_path):
                     with open(test_img_path, "rb") as f:
-                        await ws.send_bytes(f.read())
-                await asyncio.sleep(1.0)
+                        img_bytes = f.read()
+                    for _ in range(3):
+                        await ws.send_bytes(img_bytes)
+                        await asyncio.sleep(0.5)
+                # Smooth zoom into specific photo
+                photo_path = os.path.join(base, "images", "photo_2025-08-07 15.00.23.jpeg")
+                if os.path.isfile(photo_path):
+                    img = Image.open(photo_path)
+                    w, h = img.size
+                    steps = 30
+                    for i in range(steps):
+                        scale = 1 + 0.3 * i / (steps - 1)
+                        new_w, new_h = int(w * scale), int(h * scale)
+                        img_scaled = img.resize((new_w, new_h), Image.LANCZOS)
+                        left = (new_w - w) // 2
+                        top = (new_h - h) // 2
+                        img_cropped = img_scaled.crop((left, top, left + w, top + h))
+                        buf = io.BytesIO()
+                        img_cropped.save(buf, format="JPEG", quality=85)
+                        await ws.send_bytes(buf.getvalue())
+                        await asyncio.sleep(0.1)
+                else:
+                    await asyncio.sleep(1.0)
         except WebSocketDisconnect:
             return
 

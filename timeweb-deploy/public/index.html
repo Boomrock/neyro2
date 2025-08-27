@@ -15,11 +15,53 @@
 
 <body>
   <div id="root"></div>
-  <audio id="main-audio" controls src="/5.mp3"></audio>
-  <div id="feedback" style="display:none; margin:0;color:#666;">Ваш отзыв поможет нам стать лучше.</div>
+  <audio id="main-audio" controls autoplay src="/5.mp3"></audio>
+  <div id="feedback" style="display:none; margin:20px;padding:15px;background:#f0f0f0;border-radius:8px;color:#333;text-align:center;font-family:Inter,sans-serif;">Ваш отзыв поможет нам стать лучше.</div>
+
   <script>
-    document.getElementById('main-audio').addEventListener('ended', () => {
+    const audio = document.getElementById('main-audio');
+
+    // Обработчик окончания музыки
+    audio.addEventListener('ended', () => {
       document.getElementById('feedback').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('feedback').style.opacity = '1';
+      }, 100);
+    });
+
+    // Обработчик ошибки загрузки
+    audio.addEventListener('error', (e) => {
+      console.error('Audio loading error:', e);
+      // Показать сообщение об ошибке
+      const errorMsg = document.createElement('div');
+      errorMsg.style.cssText = 'margin:20px;padding:15px;background:#ffe6e6;border:1px solid #ffcccc;border-radius:8px;color:#cc0000;text-align:center;font-family:Inter,sans-serif;';
+      errorMsg.innerHTML = 'Ошибка загрузки музыки. Попробуйте перезагрузить страницу.';
+      document.body.appendChild(errorMsg);
+    });
+
+    // Обработчик успешной загрузки
+    audio.addEventListener('canplay', () => {
+      console.log('Audio loaded successfully');
+      // Попытаться запустить автоматически
+      audio.play().catch(e => {
+        console.log('Autoplay blocked, user interaction required:', e);
+      });
+    });
+
+    // Добавить кнопку для ручного запуска (на случай блокировки автозапуска)
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (audio.paused && audio.readyState >= 2) {
+          const playButton = document.createElement('button');
+          playButton.innerHTML = '▶️ Запустить музыку';
+          playButton.style.cssText = 'position:fixed;top:20px;right:20px;padding:10px 20px;background:#007bff;color:white;border:none;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;z-index:1000;';
+          playButton.onclick = () => {
+            audio.play();
+            playButton.remove();
+          };
+          document.body.appendChild(playButton);
+        }
+      }, 2000);
     });
   </script>
 </body>

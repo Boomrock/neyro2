@@ -255,12 +255,12 @@ async def get_music(filename: str):
 
 @app.get("/music/harry-potter.mp3")
 async def get_harry_potter_music():
-    """Специальный endpoint для файла с кириллицей"""
+    """Endpoint для файла 5.mp3 (ранее Вселенная Гарри Поттера.mp3)"""
     base = os.path.dirname(__file__)
-    file_path = os.path.join(base, "music", "Вселенная Гарри Поттера.mp3")
+    file_path = os.path.join(base, "music", "5.mp3")
     if os.path.isfile(file_path):
         return FileResponse(file_path, media_type="audio/mpeg")
-    raise HTTPException(status_code=404, detail="Harry Potter music not found")
+    raise HTTPException(status_code=404, detail="Music file not found")
 
 
 @app.get("/images/{filename}")

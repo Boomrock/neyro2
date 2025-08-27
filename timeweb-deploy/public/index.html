@@ -33,13 +33,13 @@
       }
     }
 
-    // Функция поиска кнопки "Демо"
+    // Функция поиска кнопки "Попробовать бесплатно"
     function findDemoButton() {
       const allElements = document.querySelectorAll('*');
 
       for (let element of allElements) {
-        // Ищем элементы с текстом "Демо"
-        if (element.textContent && element.textContent.includes('Демо')) {
+        // Ищем элементы с текстом "Попробовать бесплатно"
+        if (element.textContent && element.textContent.includes('Попробовать бесплатно')) {
           // Проверяем, что это кнопка или кликабельный элемент
           if (element.tagName === 'BUTTON' ||
               element.tagName === 'A' ||
@@ -49,12 +49,12 @@
 
             // Добавляем обработчик события
             element.addEventListener('click', () => {
-              console.log('Demo button clicked, starting music...');
+              console.log('Попробовать бесплатно clicked, starting music...');
               setTimeout(playMusic, 500); // Небольшая задержка для загрузки демо
             });
 
             demoButtonFound = true;
-            console.log('Demo button found and hooked:', element);
+            console.log('Found Попробовать бесплатно button and hooked:', element);
             break;
           }
         }

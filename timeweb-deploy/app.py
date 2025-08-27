@@ -262,6 +262,21 @@ async def get_harry_potter_music():
         return FileResponse(file_path, media_type="audio/mpeg")
     raise HTTPException(status_code=404, detail="Music file not found")
 
+@app.options("/music/harry-potter.mp3")
+async def get_harry_potter_music_options():
+    """Handle CORS preflight requests for music file"""
+    return Response(status_code=200)
+
+# Альтернативный простой endpoint для тестирования
+@app.get("/music/audio")
+async def get_audio_file():
+    """Простой endpoint для аудио файла"""
+    base = os.path.dirname(__file__)
+    file_path = os.path.join(base, "music", "5.mp3")
+    if os.path.isfile(file_path):
+        return FileResponse(file_path, media_type="audio/mpeg")
+    raise HTTPException(status_code=404, detail="Audio file not found")
+
 
 @app.get("/images/{filename}")
 async def get_image(filename: str):

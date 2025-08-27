@@ -293,6 +293,30 @@ async def debug_files():
         "working_directory": base
     }
 
+# Endpoint для получения списка музыкальных файлов
+@app.get("/music")
+async def get_music_list():
+    """Get list of available music files"""
+    base = os.path.dirname(__file__)
+    music_dir = os.path.join(base, "music")
+    files = []
+    if os.path.exists(music_dir):
+        all_files = os.listdir(music_dir)
+        files = [f for f in all_files if f.endswith('.mp3')]
+        # Сортируем, чтобы 5.mp3 был первым
+        files.sort(key=lambda x: '0' if x == '5.mp3' else x)
+    return {"files": files, "default": "5.mp3"}
+
+# Endpoint для получения дефолтного музыкального файла
+@app.get("/music/default")
+async def get_default_music():
+    """Get the default music file (5.mp3)"""
+    base = os.path.dirname(__file__)
+    file_path = os.path.join(base, "music", "5.mp3")
+    if os.path.isfile(file_path):
+        return FileResponse(file_path, media_type="audio/mpeg")
+    raise HTTPException(status_code=404, detail="Default music file not found")
+
 
 @app.get("/images/{filename}")
 async def get_image(filename: str):

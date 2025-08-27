@@ -20,6 +20,46 @@
 
   <script>
     const audio = document.getElementById('main-audio');
+    let demoButtonFound = false;
+
+    // Функция для запуска музыки
+    function playMusic() {
+      if (audio && audio.readyState >= 2) {
+        audio.play().then(() => {
+          console.log('Music started successfully');
+        }).catch(e => {
+          console.error('Failed to play music:', e);
+        });
+      }
+    }
+
+    // Функция поиска кнопки "Демо"
+    function findDemoButton() {
+      const allElements = document.querySelectorAll('*');
+
+      for (let element of allElements) {
+        // Ищем элементы с текстом "Демо"
+        if (element.textContent && element.textContent.includes('Демо')) {
+          // Проверяем, что это кнопка или кликабельный элемент
+          if (element.tagName === 'BUTTON' ||
+              element.tagName === 'A' ||
+              element.onclick ||
+              element.getAttribute('role') === 'button' ||
+              window.getComputedStyle(element).cursor === 'pointer') {
+
+            // Добавляем обработчик события
+            element.addEventListener('click', () => {
+              console.log('Demo button clicked, starting music...');
+              setTimeout(playMusic, 500); // Небольшая задержка для загрузки демо
+            });
+
+            demoButtonFound = true;
+            console.log('Demo button found and hooked:', element);
+            break;
+          }
+        }
+      }
+    }
 
     // Обработчик окончания музыки
     audio.addEventListener('ended', () => {
@@ -32,7 +72,6 @@
     // Обработчик ошибки загрузки
     audio.addEventListener('error', (e) => {
       console.error('Audio loading error:', e);
-      // Показать сообщение об ошибке
       const errorMsg = document.createElement('div');
       errorMsg.style.cssText = 'margin:20px;padding:15px;background:#ffe6e6;border:1px solid #ffcccc;border-radius:8px;color:#cc0000;text-align:center;font-family:Inter,sans-serif;';
       errorMsg.innerHTML = 'Ошибка загрузки музыки. Попробуйте перезагрузить страницу.';
@@ -42,26 +81,44 @@
     // Обработчик успешной загрузки
     audio.addEventListener('canplay', () => {
       console.log('Audio loaded successfully');
-      // Попытаться запустить автоматически
-      audio.play().catch(e => {
-        console.log('Autoplay blocked, user interaction required:', e);
-      });
     });
 
-    // Добавить кнопку для ручного запуска (на случай блокировки автозапуска)
+    // Мониторинг DOM для поиска кнопки "Демо"
+    const observer = new MutationObserver(() => {
+      if (!demoButtonFound) {
+        findDemoButton();
+      }
+    });
+
+    // Запуск поиска кнопки при загрузке страницы
     window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (audio.paused && audio.readyState >= 2) {
-          const playButton = document.createElement('button');
-          playButton.innerHTML = '▶️ Запустить музыку';
-          playButton.style.cssText = 'position:fixed;top:20px;right:20px;padding:10px 20px;background:#007bff;color:white;border:none;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;z-index:1000;';
-          playButton.onclick = () => {
-            audio.play();
-            playButton.remove();
-          };
-          document.body.appendChild(playButton);
-        }
-      }, 2000);
+      console.log('Page loaded, looking for Demo button...');
+
+      // Первичный поиск
+      findDemoButton();
+
+      // Если не нашли, наблюдаем за изменениями DOM
+      if (!demoButtonFound) {
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+
+        // Повторный поиск через некоторое время
+        setTimeout(findDemoButton, 1000);
+        setTimeout(findDemoButton, 3000);
+        setTimeout(() => {
+          if (!demoButtonFound) {
+            console.log('Demo button not found, adding fallback button');
+            // Добавляем кнопку для тестирования
+            const testButton = document.createElement('button');
+            testButton.innerHTML = '🎵 Запустить музыку (тест)';
+            testButton.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:10px 20px;background:#28a745;color:white;border:none;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;z-index:1000;';
+            testButton.onclick = playMusic;
+            document.body.appendChild(testButton);
+          }
+        }, 5000);
+      }
     });
   </script>
 </body>

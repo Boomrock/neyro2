@@ -277,6 +277,22 @@ async def get_audio_file():
         return FileResponse(file_path, media_type="audio/mpeg")
     raise HTTPException(status_code=404, detail="Audio file not found")
 
+# Debug endpoint для проверки файлов
+@app.get("/debug/files")
+async def debug_files():
+    """Debug endpoint to check file existence"""
+    base = os.path.dirname(__file__)
+    music_dir = os.path.join(base, "music")
+    files = []
+    if os.path.exists(music_dir):
+        files = os.listdir(music_dir)
+    return {
+        "music_directory": music_dir,
+        "files": files,
+        "music_5mp3_exists": os.path.isfile(os.path.join(music_dir, "5.mp3")),
+        "working_directory": base
+    }
+
 
 @app.get("/images/{filename}")
 async def get_image(filename: str):

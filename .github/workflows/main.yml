@@ -18,5 +18,5 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{secrets.SHH_USER}}@${{ secrets.SERVER_IP }} 'sudo /usr/sbin/deploy'
+          ssh -o StrictHostKeyChecking=no ${{secrets.SHH_USER}}@${{ secrets.SERVER_IP }} '/usr/sbin/deploy'
 
